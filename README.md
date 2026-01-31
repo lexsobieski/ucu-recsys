@@ -1,37 +1,48 @@
-# UCU Recommender Systems Capstone
+# Recommender Systems
+## Capstone Project
 
-Classical recommender systems on MovieLens 1M dataset.
+**Macrodata Refinement** Team
 
-## Getting Started
+- Mykyta Berehulia
+- Oleksandr Sobetskyi
+- Mark Matviiv
 
-```bash
+## Project Setup
+
+Python: **3.12.10**
+
+```shell
 python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
+source .venv/bin/activate
 pip install -r requirements.txt
-python scripts/download_data.py
 ```
 
-## Structure
+## Dataset Download
+
+```shell
+python scripts/download_movielens.py
+```
+
+## Project Structure
 
 ```
+├── artifacts/
 ├── data/
-│   ├── raw/               # movies.dat, ratings.dat, users.dat
-│   └── processed/         # train.parquet, test.parquet
-├── artifacts/             # Trained model artifacts
-├── experiments/           # Dated experiment folders
-│   └── YYYYMMDD_descriptive_name/
-│       ├── results/
-│       ├── description.md
-│       └── experiment.ipynb
-├── scripts/               # Utility scripts
+│   └── ml-1m/
+│       ├── movies.dat
+│       ├── ratings.dat
+│       └── users.dat
+├── experiments/
+│   ├── exploratory-data-analysis.ipynb
+│   ├── matrix-factorization.ipynb
+│   └── similarity-based-recommenders.ipynb
+├── scripts/
+│   └── download_movielens.py
 ├── src/
-│   ├── models/
-│   │   ├── base.py        # BaseRecommender ABC
-│   │   ├── content_based.py
-│   │   ├── collaborative.py
-│   │   └── matrix_fact.py
-│   ├── constants.py       # DataSchema
-│   ├── metrics.py         # RMSE, Precision@K, Recall@K
-│   └── utils.py
-└── requirements.txt
+│   ├── data/
+│   │   ├── loader.py
+│   │   └── splitter.py
+│   └── evaluation/
+│       └── metrics.py
+├── requirements.txt
 ```
