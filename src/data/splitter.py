@@ -1,6 +1,11 @@
 import pandas as pd
 from recommenders.datasets.python_splitters import python_chrono_split
 
+COLUMN_USER = "user_id"
+COLUMN_TIMESTAMP = "timestamp"
+
+EXPECTED_RATIO_SUM = 1.0
+
 
 def split_temporal(
     dataframe: pd.DataFrame,
@@ -9,24 +14,26 @@ def split_temporal(
     test_ratio: float
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     total = train_ratio + validation_ratio + test_ratio
-    if abs(total - 1.0) > 1e-9:
-        raise ValueError(f"Ratios must sum to 1.0, got {total}")
+
+    if total != EXPECTED_RATIO_SUM:
+        raise ValueError(f"Ratios must sum to {EXPECTED_RATIO_SUM}, got {total}")
 
     train_validation_ratio = train_ratio + validation_ratio
     relative_validation_ratio = validation_ratio / train_validation_ratio
+    relative_train_ratio = EXPECTED_RATIO_SUM - relative_validation_ratio
 
     train_validation, test = python_chrono_split(
-        dataframe,
+        data=dataframe,
         ratio=train_validation_ratio,
-        col_user="user_id",
-        col_timestamp="timestamp"
+        col_user=COLUMN_USER,
+        col_timestamp=COLUMN_TIMESTAMP
     )
 
     train, validation = python_chrono_split(
-        train_validation,
-        ratio=(1 - relative_validation_ratio),
-        col_user="user_id",
-        col_timestamp="timestamp"
+        data=train_validation,
+        ratio=relative_train_ratio,
+        col_user=COLUMN_USER,
+        col_timestamp=COLUMN_TIMESTAMP
     )
 
     return train, validation, test
