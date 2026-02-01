@@ -1,6 +1,6 @@
 from src.evaluation.metrics import compute_beyond_accuracy_metrics
 from src.evaluation.metrics import compute_coverage
-from src.evaluation.metrics import compute_diversity
+from src.evaluation.metrics import compute_explained_variance
 from src.evaluation.metrics import compute_mae
 from src.evaluation.metrics import compute_map
 from src.evaluation.metrics import compute_ndcg
@@ -15,7 +15,7 @@ from src.evaluation.metrics import compute_rmse
 __all__ = [
     "compute_beyond_accuracy_metrics",
     "compute_coverage",
-    "compute_diversity",
+    "compute_explained_variance",
     "compute_mae",
     "compute_map",
     "compute_ndcg",

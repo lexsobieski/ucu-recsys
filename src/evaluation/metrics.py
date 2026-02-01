@@ -9,12 +9,12 @@ COLUMN_PREDICTION = "prediction"
 
 
 def compute_ndcg(
-    ground_truth: pd.DataFrame,
+    test_dataframe: pd.DataFrame,
     predictions: pd.DataFrame,
     top_k: int
 ) -> float:
     return python_evaluation.ndcg_at_k(
-        rating_true=ground_truth,
+        rating_true=test_dataframe,
         rating_pred=predictions,
         col_user=COLUMN_USER,
         col_item=COLUMN_ITEM,
@@ -25,12 +25,12 @@ def compute_ndcg(
 
 
 def compute_map(
-    ground_truth: pd.DataFrame,
+    test_dataframe: pd.DataFrame,
     predictions: pd.DataFrame,
     top_k: int
 ) -> float:
     return python_evaluation.map_at_k(
-        rating_true=ground_truth,
+        rating_true=test_dataframe,
         rating_pred=predictions,
         col_user=COLUMN_USER,
         col_item=COLUMN_ITEM,
@@ -41,12 +41,12 @@ def compute_map(
 
 
 def compute_precision(
-    ground_truth: pd.DataFrame,
+    test_dataframe: pd.DataFrame,
     predictions: pd.DataFrame,
     top_k: int
 ) -> float:
     return python_evaluation.precision_at_k(
-        rating_true=ground_truth,
+        rating_true=test_dataframe,
         rating_pred=predictions,
         col_user=COLUMN_USER,
         col_item=COLUMN_ITEM,
@@ -57,12 +57,12 @@ def compute_precision(
 
 
 def compute_recall(
-    ground_truth: pd.DataFrame,
+    test_dataframe: pd.DataFrame,
     predictions: pd.DataFrame,
     top_k: int
 ) -> float:
     return python_evaluation.recall_at_k(
-        rating_true=ground_truth,
+        rating_true=test_dataframe,
         rating_pred=predictions,
         col_user=COLUMN_USER,
         col_item=COLUMN_ITEM,
@@ -73,11 +73,11 @@ def compute_recall(
 
 
 def compute_rmse(
-    ground_truth: pd.DataFrame,
+    test_dataframe: pd.DataFrame,
     predictions: pd.DataFrame
 ) -> float:
     return python_evaluation.rmse(
-        rating_true=ground_truth,
+        rating_true=test_dataframe,
         rating_pred=predictions,
         col_user=COLUMN_USER,
         col_item=COLUMN_ITEM,
@@ -87,11 +87,11 @@ def compute_rmse(
 
 
 def compute_mae(
-    ground_truth: pd.DataFrame,
+    test_dataframe: pd.DataFrame,
     predictions: pd.DataFrame
 ) -> float:
     return python_evaluation.mae(
-        rating_true=ground_truth,
+        rating_true=test_dataframe,
         rating_pred=predictions,
         col_user=COLUMN_USER,
         col_item=COLUMN_ITEM,
@@ -101,11 +101,11 @@ def compute_mae(
 
 
 def compute_r_squared(
-    ground_truth: pd.DataFrame,
+    test_dataframe: pd.DataFrame,
     predictions: pd.DataFrame
 ) -> float:
     return python_evaluation.rsquared(
-        rating_true=ground_truth,
+        rating_true=test_dataframe,
         rating_pred=predictions,
         col_user=COLUMN_USER,
         col_item=COLUMN_ITEM,
@@ -115,10 +115,10 @@ def compute_r_squared(
 
 
 def compute_explained_variance(
-    ground_truth: pd.DataFrame,
+    test_dataframe: pd.DataFrame,
     predictions: pd.DataFrame
 ) -> float:
-    merged = ground_truth.merge(
+    merged = test_dataframe.merge(
         predictions,
         on=[COLUMN_USER, COLUMN_ITEM]
     )
@@ -153,28 +153,28 @@ def compute_novelty(
 
 
 def compute_ranking_metrics(
-    ground_truth: pd.DataFrame,
+    test_dataframe: pd.DataFrame,
     predictions: pd.DataFrame,
     top_k: int
 ) -> dict[str, float]:
     return {
         "ndcg": compute_ndcg(
-            ground_truth=ground_truth,
+            test_dataframe=test_dataframe,
             predictions=predictions,
             top_k=top_k
         ),
         "map": compute_map(
-            ground_truth=ground_truth,
+            test_dataframe=test_dataframe,
             predictions=predictions,
             top_k=top_k
         ),
         "precision": compute_precision(
-            ground_truth=ground_truth,
+            test_dataframe=test_dataframe,
             predictions=predictions,
             top_k=top_k
         ),
         "recall": compute_recall(
-            ground_truth=ground_truth,
+            test_dataframe=test_dataframe,
             predictions=predictions,
             top_k=top_k
         )
@@ -182,24 +182,24 @@ def compute_ranking_metrics(
 
 
 def compute_rating_metrics(
-    ground_truth: pd.DataFrame,
+    test_dataframe: pd.DataFrame,
     predictions: pd.DataFrame
 ) -> dict[str, float]:
     return {
         "rmse": compute_rmse(
-            ground_truth=ground_truth,
+            test_dataframe=test_dataframe,
             predictions=predictions
         ),
         "mae": compute_mae(
-            ground_truth=ground_truth,
+            test_dataframe=test_dataframe,
             predictions=predictions
         ),
         "r_squared": compute_r_squared(
-            ground_truth=ground_truth,
+            test_dataframe=test_dataframe,
             predictions=predictions
         ),
         "explained_variance": compute_explained_variance(
-            ground_truth=ground_truth,
+            test_dataframe=test_dataframe,
             predictions=predictions
         )
     }
