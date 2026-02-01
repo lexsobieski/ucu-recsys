@@ -8,6 +8,7 @@ MOVIELENS_URL = "https://files.grouplens.org/datasets/movielens/ml-1m.zip"
 DATA_DIR = PROJECT_ROOT / "data"
 DATASET_DIR = DATA_DIR / "ml-1m"
 ZIP_PATH = DATA_DIR / "ml-1m.zip"
+README_PATH = DATASET_DIR / "README"
 RATINGS_FILENAME = "ratings.dat"
 
 
@@ -40,6 +41,9 @@ def download_movielens() -> None:
     finally:
         if ZIP_PATH.exists():
             ZIP_PATH.unlink()
+
+        if README_PATH.exists():
+            README_PATH.unlink()
 
 
 if __name__ == "__main__":
