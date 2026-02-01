@@ -1,0 +1,14 @@
+{
+  "best_params": {
+    "factors": 10,
+    "regularization": 0.1,
+    "iterations": 30
+  },
+  "val_ndcg": 0.08617977851328452,
+  "test_ranking_metrics": {
+    "ndcg": 0.08443167369983819,
+    "map": 0.03981187919280239,
+    "precision": 0.06652012174501185,
+    "recall": 0.07011740752479372
+  }
+}
