@@ -2,6 +2,7 @@ import pandas as pd
 from recommenders.datasets.python_splitters import python_chrono_split
 
 COLUMN_USER = "user_id"
+COLUMN_ITEM = "item_id"
 COLUMN_TIMESTAMP = "timestamp"
 
 EXPECTED_RATIO_SUM = 1.0
@@ -26,6 +27,7 @@ def split_temporal(
         data=dataframe,
         ratio=train_validation_ratio,
         col_user=COLUMN_USER,
+        col_item=COLUMN_ITEM,
         col_timestamp=COLUMN_TIMESTAMP
     )
 
@@ -33,6 +35,7 @@ def split_temporal(
         data=train_validation,
         ratio=relative_train_ratio,
         col_user=COLUMN_USER,
+        col_item=COLUMN_ITEM,
         col_timestamp=COLUMN_TIMESTAMP
     )
 
