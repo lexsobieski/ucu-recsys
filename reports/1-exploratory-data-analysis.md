@@ -6,7 +6,7 @@ This report summarizes the exploratory data analysis done on the MovieLens 1M da
 
 Two main data issues affect our modeling strategy. First, popularity bias means that a small number of blockbuster movies get most of the ratings. This bias can lead naive models to over-recommend popular items and ignore personalization. Second, item cold-start impacts 12% of movies that have fewer than 10 ratings. This makes collaborative filtering unreliable for those items and requires using fallback mechanisms based on content.
 
-The analysis shows that matrix factorization methods work better than memory-based collaborative filtering because of the sparse interaction matrix. The temporal patterns remain stable throughout the dataset's life. This stability supports a time-based train/validation/test split strategy. Genre metadata serves as a good base for content-based filtering, but its predictive power is limited to categorical similarity.
+Based on this sparsity, matrix factorization methods are expected to outperform memory-based collaborative filtering, though this hypothesis requires empirical validation. The temporal patterns remain stable throughout the dataset's life. This stability supports a time-based train/validation/test split strategy. Genre metadata serves as a good base for content-based filtering, but its predictive power is limited to categorical similarity.
 
 
 
@@ -16,15 +16,15 @@ The MovieLens 1M dataset was collected by the GroupLens research group. It conta
 
 The interaction matrix includes 6,040 users and 3,706 items, excluding 177 "ghost" movies that are in the catalog but have never been rated. With just over one million ratings, the matrix density is 4.47%. This means collaborative filtering algorithms need to generalize from observing less than 5% of possible user-item pairs.
 
-| Metric | Value |
-|--------|-------|
-| Total Ratings | 1,000,209 |
-| Users | 6,040 |
-| Items (with ratings) | 3,706 |
-| Matrix Density | 4.47% |
-| Rating Scale | 1-5 stars |
-| Global Mean Rating | 3.58 |
-| Time Span | 2.8 years |
+| Metric              | Value       |
+|---------------------|-------------|
+| Total Ratings       | 1,000,209   |
+| Users               | 6,040       |
+| Items (with ratings)| 3,706       |
+| Matrix Density      | 4.47%       |
+| Rating Scale        | 1-5 stars   |
+| Global Mean Rating  | 3.58        |
+| Time Span           | 2.8 years   |
 
 
 
@@ -34,9 +34,9 @@ The sparse user-item matrix presents a key challenge for collaborative filtering
 
 ![spy-plot](images/spy-plot.png)
 
-The spy plot above shows the rating matrix. Users are sorted by activity level, and items are sorted by popularity. You can clearly see that many ratings cluster in the upper-left corner, where active users rate popular items. In contrast, the lower-right corner has very few ratings. This pattern indicates that methods based on similarity will work well for active users and popular items, but will quickly lose effectiveness for less common ones.
+The spy plot above shows the rating matrix. Users are sorted by activity level, and items are sorted by popularity. You can clearly see that many ratings cluster in the upper-left corner, where active users rate popular items. In contrast, the lower-right corner has very few ratings. This pattern suggests that similarity-based methods may perform better for active users and popular items, but could lose effectiveness for less common user-item pairs.
 
-When choosing a model, this sparsity pattern supports matrix factorization methods. They learn hidden representations that can generalize beyond what has been seen. Memory-based methods, like user-user or item-item nearest neighbors, should set minimum overlap thresholds to prevent unreliable similarity estimates.
+From a theoretical standpoint, this sparsity pattern favors matrix factorization methods, which learn dense latent representations that should generalize beyond observed interactions. If memory-based methods like user-user or item-item nearest neighbors are used, minimum overlap thresholds are advisable to reduce unreliable similarity estimates.
 
 
 
@@ -72,7 +72,7 @@ Item popularity follows a power-law distribution with a slope of -1.48 on a log-
 
 ![power-law-fit](images/power-law-fit.png)
 
-The Lorenz curve measures inequality. A small number of items gets most of the total interactions. This concentration of popularity creates a feedback loop. Models trained on past data tend to recommend items that are already popular. This can lead to a loss of personalization in favor of safer predictions.
+The Lorenz curve measures inequality. A small number of items gets most of the total interactions. This concentration of popularity can create a feedback loop. Models trained on past data may tend to recommend items that are already popular, potentially reducing personalization in favor of safer predictions.
 
 ![lorenz-curve](images/lorenz-curve.png)
 
@@ -106,7 +106,7 @@ Most movies have multiple genre tags, showing the complex nature of film content
 
 ![genre-cooccurrence](images/genre-cooccurrence.png)
 
-For content-based filtering, binary genre vectors provide a simple way to represent items. Cosine similarity across these vectors gives useful but rough differentiation. Movies that share genres will have a non-zero similarity, no matter their other qualities. This representation works for cold-start fallback but won't capture detailed user preferences. The strong presence of Drama and Comedy can skew content-based recommendations towards these dominant genres.
+For content-based filtering, binary genre vectors provide a simple way to represent items. Cosine similarity across these vectors gives useful but rough differentiation. Movies that share genres will have a non-zero similarity, no matter their other qualities. This representation may serve as a cold-start fallback but is unlikely to capture nuanced user preferences. The strong presence of Drama and Comedy could skew content-based recommendations towards these dominant genres.
 
 
 
@@ -118,7 +118,7 @@ Truncated SVD on the centered rating matrix shows the number of dimensions neede
 
 This gradual curve shows that user preferences are genuinely high-dimensional. There is no small set of "taste factors" that explains most of the variation. Each added latent dimension contributes modestly but meaningfully. The practical implication is that matrix factorization models should use 50 to 100 latent factors. The exact number should be determined through validation performance.
 
-The high-dimensional latent structure, together with the sparse observation matrix, creates a risk of overfitting. Regularization, such as L2 penalties on factor magnitudes, is essential to prevent models from memorizing training interactions instead of generalizing.
+The high-dimensional latent structure, together with the sparse observation matrix, creates a risk of overfitting. Regularization techniques such as L2 penalties on factor magnitudes are likely necessary to help models generalize rather than memorize training interactions.
 
 
 
@@ -132,11 +132,11 @@ User and item biases account for significant differences in ratings, regardless 
 
 ### Model selection
 
-The 95.5% sparsity and low user-pair overlap (median 9 co-rated items) make nearest-neighbor methods unreliable for many user pairs. Matrix factorization can generalize across the sparse matrix by learning dense latent representations. For user-user or item-item collaborative filtering, we recommend enforcing a minimum overlap threshold of at least 10 co-rated items to get stable similarity estimates.
+The 95.5% sparsity and low user-pair overlap (median 9 co-rated items) suggest that nearest-neighbor methods may be unreliable for many user pairs. Matrix factorization is theoretically better suited to generalize across sparse matrices by learning dense latent representations. For user-user or item-item collaborative filtering, we recommend enforcing a minimum overlap threshold of at least 10 co-rated items to improve similarity estimate stability.
 
 ### Latent dimensionality
 
-The SVD analysis does not reveal a clear elbow point. Variance increases steadily. We suggest beginning with 50 factors and adjusting upward if validation performance gets better. Regularization is essential because of the high dimensionality and sparse observations.
+The SVD analysis does not reveal a clear elbow point. Variance increases steadily. We suggest beginning with 50 factors and adjusting upward if validation performance gets better. Regularization is advisable given the high dimensionality and sparse observations.
 
 ### Cold-start handling
 
@@ -149,27 +149,27 @@ Overall metrics will be influenced by popular items. We suggest reporting perfor
 
 ## Appendix: Key statistics
 
-| Category | Metric | Value |
-|----------|--------|-------|
-| **Scale** | Users | 6,040 |
-| | Items (rated) | 3,706 |
-| | Ratings | 1,000,209 |
-| | Density | 4.47% |
-| **Ratings** | Global Mean | 3.58 |
-| | Scale | 1-5 |
-| **User Activity** | Mean | 165.6 |
-| | Median | 96.0 |
-| | Range | 20 - 2,314 |
-| **Item Popularity** | Mean | 269.9 |
-| | Median | 123.5 |
-| | Range | 1 - 3,428 |
-| **Cold-Start** | Cold Items (<10 ratings) | 12.0% (446) |
-| | Warm Items (10-49) | 20.1% (746) |
-| | Popular Items (50+) | 67.8% (2,514) |
-| **Temporal** | Time Span | Apr 2000 - Feb 2003 |
-| | Train/Val/Test Split | 70/15/15 |
-| | Cold Users in Validation | 60% |
-| **Content** | Genres | 18 |
-| | Ghost Items | 177 |
-| **Latent Structure** | Components for 30% variance | 12 |
-| | Components for 40% variance | 44 |
+| Category             | Metric                     | Value               |
+|----------------------|----------------------------|---------------------|
+| **Scale**            | Users                      | 6,040               |
+|                      | Items (rated)              | 3,706               |
+|                      | Ratings                    | 1,000,209           |
+|                      | Density                    | 4.47%               |
+| **Ratings**          | Global Mean                | 3.58                |
+|                      | Scale                      | 1-5                 |
+| **User Activity**    | Mean                       | 165.6               |
+|                      | Median                     | 96.0                |
+|                      | Range                      | 20 - 2,314          |
+| **Item Popularity**  | Mean                       | 269.9               |
+|                      | Median                     | 123.5               |
+|                      | Range                      | 1 - 3,428           |
+| **Cold-Start**       | Cold Items (<10 ratings)   | 12.0% (446)         |
+|                      | Warm Items (10-49)         | 20.1% (746)         |
+|                      | Popular Items (50+)        | 67.8% (2,514)       |
+| **Temporal**         | Time Span                  | Apr 2000 - Feb 2003 |
+|                      | Train/Val/Test Split       | 70/15/15            |
+|                      | Cold Users in Validation   | 60%                 |
+| **Content**          | Genres                     | 18                  |
+|                      | Ghost Items                | 177                 |
+| **Latent Structure** | Components for 30% variance| 12                  |
+|                      | Components for 40% variance| 44                  |
