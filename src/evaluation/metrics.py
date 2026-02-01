@@ -1,5 +1,3 @@
-from typing import Any
-
 import pandas as pd
 from recommenders.evaluation import python_evaluation
 
@@ -106,12 +104,12 @@ def compute_r_squared(ground_truth: pd.DataFrame, predictions: pd.DataFrame) -> 
     )
 
 
-def compute_coverage(predictions: pd.DataFrame, catalog: list[Any]) -> float:
+def compute_coverage(train_dataframe: pd.DataFrame, predictions: pd.DataFrame) -> float:
     return python_evaluation.catalog_coverage(
-        rating_pred=predictions,
+        train_df=train_dataframe,
+        reco_df=predictions,
         col_user=COLUMN_USER,
-        col_item=COLUMN_ITEM,
-        catalog=catalog
+        col_item=COLUMN_ITEM
     )
 
 
@@ -159,14 +157,10 @@ def compute_rating_metrics(
 
 def compute_beyond_accuracy_metrics(
     train_dataframe: pd.DataFrame,
-    predictions: pd.DataFrame,
-    catalog: list[Any] | None = None
+    predictions: pd.DataFrame
 ) -> dict[str, float]:
-    if catalog is None:
-        catalog = train_dataframe[COLUMN_ITEM].unique().tolist()
-
     return {
-        "coverage": compute_coverage(predictions, catalog),
+        "coverage": compute_coverage(train_dataframe, predictions),
         "novelty": compute_novelty(train_dataframe, predictions),
         "diversity": compute_diversity(train_dataframe, predictions)
     }
@@ -176,12 +170,8 @@ def compute_all_metrics(
     ground_truth: pd.DataFrame,
     predictions: pd.DataFrame,
     top_k: int,
-    train_dataframe: pd.DataFrame,
-    catalog: list[Any] | None = None
+    train_dataframe: pd.DataFrame
 ) -> dict[str, float]:
-    if catalog is None:
-        catalog = train_dataframe[COLUMN_ITEM].unique().tolist()
-
     return {
         "ndcg": compute_ndcg(ground_truth, predictions, top_k),
         "map": compute_map(ground_truth, predictions, top_k),
@@ -190,7 +180,7 @@ def compute_all_metrics(
         "rmse": compute_rmse(ground_truth, predictions),
         "mae": compute_mae(ground_truth, predictions),
         "r_squared": compute_r_squared(ground_truth, predictions),
-        "coverage": compute_coverage(predictions, catalog),
+        "coverage": compute_coverage(train_dataframe, predictions),
         "novelty": compute_novelty(train_dataframe, predictions),
         "diversity": compute_diversity(train_dataframe, predictions)
     }
