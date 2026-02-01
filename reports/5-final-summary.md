@@ -47,6 +47,37 @@ This evaluation framework measures a model's ability to rank relevant items base
 
 # 4. Similarity-Based Recommenders
 
+- Detailed report: `reports/3-similarity-based-recommenders.md`
+- Notebook: `experiments/similarity-based-recommenders.ipynb`
+
+We implemented and compared three classes of similarity-based models: content-based filtering, collaborative filtering, and a hybrid approach.
+
+Content-based filtering uses item metadata. The baseline model used Jaccard similarity on binary genre sets. An improved version utilized TF-IDF on a combined "metadata soup" of movie titles and genres to capture more specific similarities like sequels.
+
+Collaborative filtering employed item-item similarity based on user interaction vectors. We compared cosine similarity against Pearson correlation, which centers data to account for user rating bias.
+
+The hybrid model combined the scores of the best CF and CB models using a weighted sum, aiming to mitigate the sparsity of collaborative signals with content metadata.
+
+## 4.1 Results
+
+The table below summarizes the performance of the models at K=10 on the test set.
+
+| Model | NDCG@10 | Precision@10 | Recall@10 |
+| :--- | :--- | :--- | :--- |
+| **Hybrid (CF + TF-IDF, alpha=0.8)** | **0.1493** | **0.1360** | **0.0861** |
+| CF Item-Item (Cosine) | 0.1488 | 0.1380 | 0.0865 |
+| CF Item-Item (Pearson) | 0.1291 | 0.1160 | 0.0609 |
+| CB (Jaccard) | 0.0339 | 0.0320 | 0.0131 |
+| CB (TF-IDF) | 0.0306 | 0.0290 | 0.0170 |
+
+## 4.2 Discussion
+
+Collaborative filtering with cosine similarity proved to be the most effective approach, significantly outperforming content-based methods. This confirms that for the relatively dense MovieLens dataset, the patterns of collective user behavior are far more predictive of preference than static metadata like genres.
+
+Interesting nuances appeared in the comparison. Pearson correlation underperformed compared to simple cosine similarity. While Pearson theoretically corrects for user bias, in practice, the mean-centering operation on sparse vectors likely introduced noise or dampened valid signals. While Jaccard on genres yielded better top-ranking precision, TF-IDF on titles improved recall. This indicates that including titles helps the model find specific relevant items like sequels that genre-matching misses, even if it ranks them lower on average.
+
+The weighted hybrid model showed performance comparable to the pure CF baseline, achieving a slightly higher NDCG (0.1493 vs 0.1488) but slightly lower recall. This suggests that blending content signals can marginally improve ranking order by refining the score ties, even if it doesn't significantly expand the set of retrieved items. However, the gain is minimal, reinforcing that collaborative signals are the primary driver of quality here.
+
 # 5. Matrix Factorization
 
 We implemented two matrix factorization approaches: ALS (Alternating Least Squares) with implicit feedback and FunkSVD with explicit ratings.

@@ -29,10 +29,10 @@ We evaluated models using a temporal split (Train 80% / Test 10%) and ranking me
 
 | Model | NDCG@10 | Precision@10 | Recall@10 |
 | :--- | :--- | :--- | :--- |
-| **CF Item-Item (Cosine)** | **0.1488** | **0.1380** | **0.0865** |
+| **Hybrid (CF + TF-IDF)** | **0.1493** | **0.1360** | **0.0861** |
+| CF Item-Item (Cosine) | 0.1488 | 0.1380 | 0.0865 |
 | CF Item-Item (Pearson) | 0.1291 | 0.1160 | 0.0609 |
-| Hybrid (CF + TF-IDF) | 0.1410 | 0.1260 | 0.0826 |
-| CB (Jaccard) | 0.0331 | 0.0320 | 0.0131 |
+| CB (Jaccard) | 0.0339 | 0.0320 | 0.0131 |
 | CB (TF-IDF) | 0.0306 | 0.0290 | 0.0170 |
 
 ---
@@ -45,5 +45,5 @@ Collaborative filtering with cosine similarity was the clear winner, outperformi
 ### Content-Based: Precision vs. Recall
 Jaccard (genres) had better top-ranking precision (NDCG) than TF-IDF. Genres are a strong, explicit signal for grouping movies. TF-IDF (titles) slightly improved recall (0.017 vs 0.013). By matching keywords in titles, the model could find specific relevant items (like sequels) that Jaccard missed, even if it ranked them lower on average
 
-### The hybrid failure
-Mixing the models ($\alpha=0.8$) did not improve performance compared to pure CF. For users with sufficient history (which is most users in MovieLens 1M), the content-based signal is significantly weaker and acts as noise when added to the high-quality CF signal. Instead of a weighted ensemble for everyone, a switching hybrid would be better: use CF for active users, and fall back to content-based only for new users/items (cold start)
+### Hybrid performance analysis
+The weighted hybrid model ($\alpha=0.8$) achieved results highly comparable to pure CF, even slightly edging it out in NDCG (0.1493 vs 0.1488). While it didn't strictly dominate across all metrics (lower precision/recall), the NDCG gain suggests that mixing content signals helped refine the ranking order slightly. However, since the improvement is marginal, it confirms that the collaborative signal is the primary driver of quality here, and content metadata serves best as a tie-breaker or fallback rather than a primary predictor for existing users.
