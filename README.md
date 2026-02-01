@@ -14,7 +14,12 @@ Python: **3.12.10**
 ```shell
 python -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
+
+# macOS
+pip install -r requirements_mac.txt
+
+# Windows
+pip install -r requirements_win.txt
 ```
 
 ## Dataset Download
@@ -44,5 +49,6 @@ python scripts/download_movielens.py
 │   │   └── splitter.py
 │   └── evaluation/
 │       └── metrics.py
-└── requirements.txt
+├── requirements_mac.txt
+└── requirements_win.txt
 ```
