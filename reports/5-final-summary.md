@@ -82,7 +82,18 @@ The weighted hybrid model showed performance comparable to the pure CF baseline,
 
 We implemented two matrix factorization approaches: ALS (Alternating Least Squares) with implicit feedback and FunkSVD with explicit ratings.
 
-## 5.1 Results
+## 5.1 Hyperparameters
+
+Both models were tuned via grid search optimizing for validation NDCG@10.
+
+| Model | Parameters |
+|-------|------------|
+| ALS | factors=10, regularization=0.1, iterations=30 |
+| FunkSVD | n_factors=10, n_epochs=20, learning_rate=0.01, regularization=0.01 |
+
+The relatively small factor count (10) reflects the dataset's sparse nature - more factors tend to overfit without enough signal per user.
+
+## 5.2 Results
 
 | Model | NDCG@10 | Precision@10 | Recall@10 | RMSE |
 |-------|---------|--------------|-----------|------|
@@ -93,21 +104,25 @@ ALS outperforms FunkSVD on all ranking metrics by roughly 2x.
 
 ![Model Comparison](../artifacts/mf_comparison.png)
 
-## 5.2 Metrics vs K
+## 5.3 Metrics vs K
 
 ALS beats FunkSVD at every k value. Precision drops as k grows (more recommendations = harder to stay precise), while recall increases (more chances to hit relevant items). This is the standard precision-recall tradeoff. NDCG accounts for ranking position, so it stays more stable across different k values.
 
 ![Metrics vs K](../artifacts/mf_metrics_vs_k.png)
 
-## 5.3 Convergence Analysis
+### NDCG at Higher K
+
+ALS NDCG dips slightly after k=10 before rebounding around k=100. This is a normalization artifact: at moderate k the denominator grows faster than cumulative gain, but at higher k recall catches up. For longer recommendation lists, ALS would likely exceed its k=10 performance.
+
+## 5.4 Convergence Analysis
 
 ALS converges quickly and stays stable - the closed-form solution with regularization keeps it from overfitting. FunkSVD peaks around 10-20 iterations then drops, a sign of overfitting: it keeps minimizing training RMSE but that hurts ranking quality on test data. This shows why early stopping matters for SGD methods, and why optimizing for rating prediction doesn't directly translate to good recommendations.
 
 ![Convergence Analysis](../artifacts/mf_convergence.png)
 
-## 5.4 Discussion
+## 5.5 Discussion
 
 ALS (implicit) outperforms FunkSVD on ranking metrics because it's optimized for the ranking task directly. FunkSVD tries to predict exact rating values which doesn't necessarily translate to good rankings. ALS treats ratings >= 4 as positive signals and learns what users prefer, while FunkSVD treats a 3-star and 5-star rating very differently even though both might indicate interest.
 
-The choice of collaborative filter should account for these differences. But one of the crucial differences between the two, is that ALS ia parallizable and can run on multiple instances.
+The choice of collaborative filter should account for these differences. But one of the crucial differences between the two is that ALS is parallelizable and can run on multiple instances.
 # 6. Summary and Analysis
