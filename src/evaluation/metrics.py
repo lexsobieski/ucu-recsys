@@ -170,3 +170,27 @@ def compute_beyond_accuracy_metrics(
         "novelty": compute_novelty(train_dataframe, predictions),
         "diversity": compute_diversity(train_dataframe, predictions)
     }
+
+
+def compute_all_metrics(
+    ground_truth: pd.DataFrame,
+    predictions: pd.DataFrame,
+    top_k: int,
+    train_dataframe: pd.DataFrame,
+    catalog: list[Any] | None = None
+) -> dict[str, float]:
+    if catalog is None:
+        catalog = train_dataframe[COLUMN_ITEM].unique().tolist()
+
+    return {
+        "ndcg": compute_ndcg(ground_truth, predictions, top_k),
+        "map": compute_map(ground_truth, predictions, top_k),
+        "precision": compute_precision(ground_truth, predictions, top_k),
+        "recall": compute_recall(ground_truth, predictions, top_k),
+        "rmse": compute_rmse(ground_truth, predictions),
+        "mae": compute_mae(ground_truth, predictions),
+        "r_squared": compute_r_squared(ground_truth, predictions),
+        "coverage": compute_coverage(predictions, catalog),
+        "novelty": compute_novelty(train_dataframe, predictions),
+        "diversity": compute_diversity(train_dataframe, predictions)
+    }
