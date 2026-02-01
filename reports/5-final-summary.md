@@ -109,5 +109,72 @@ ALS converges quickly and stays stable - the closed-form solution with regulariz
 
 ALS (implicit) outperforms FunkSVD on ranking metrics because it's optimized for the ranking task directly. FunkSVD tries to predict exact rating values which doesn't necessarily translate to good rankings. ALS treats ratings >= 4 as positive signals and learns what users prefer, while FunkSVD treats a 3-star and 5-star rating very differently even though both might indicate interest.
 
-The choice of collaborative filter should account for these differences. But one of the crucial differences between the two, is that ALS ia parallizable and can run on multiple instances.
+The choice of collaborative filter should account for these differences. One crucial operational distinction is that ALS is parallelizable and can scale across multiple compute nodes, while FunkSVD's sequential gradient updates do not parallelize as naturally.
+
 # 6. Summary and Analysis
+
+This section brings together results from all experiments and addresses key questions about model selection, failure modes, and deployment strategy.
+
+## 6.1 Performance Comparison
+
+The table below consolidates results from all implemented models, ordered by their primary metric nDCG@10.
+
+| Rank | Model | NDCG@10 | Precision@10 | Recall@10 |
+|------|-------|---------|--------------|-----------|
+| 1 | Hybrid (CF + TF-IDF, α=0.8) | 0.1493 | 0.1360 | 0.0861 |
+| 2 | CF Item-Item (Cosine) | 0.1488 | 0.1380 | 0.0865 |
+| 3 | CF Item-Item (Pearson) | 0.1291 | 0.1160 | 0.0609 |
+| 4 | ALS (Implicit) | 0.0844 | 0.0665 | 0.0701 |
+| 5 | FunkSVD (Explicit) | 0.0404 | 0.0338 | 0.0247 |
+| 6 | CB (Jaccard) | 0.0339 | 0.0320 | 0.0131 |
+| 7 | CB (TF-IDF) | 0.0306 | 0.0290 | 0.0170 |
+
+Item-item collaborative filtering with cosine similarity is the most effective method. The hybrid model shows only a slight improvement over pure CF, with scores of 0.1493 and 0.1488. This small gain does not justify the added complexity. Content-based methods perform the worst overall, which shows that genre metadata only offers a rough differentiation for this dataset. Matrix factorization methods do not perform as well as memory-based CF in this case, which goes against what the sparsity analysis suggested. The likely reason is that the item-item similarity matrices in MovieLens 1M are still dense enough, with 3,706 items by 3,706 items, to provide reliable neighborhood estimates. Meanwhile, the latent factor models struggle to do better than direct similarity computation in a dataset of this size.
+
+## 6.2 Failure Modes
+
+Each model class has distinct failure patterns that arise under certain conditions.
+
+Content-based filtering struggles when metadata is not enough to differentiate items. Two drama films from different decades with completely different audiences may seem alike based solely on genre. The 18-genre taxonomy is too broad to capture subtleties in tone, style, or target demographic. This approach also cannot make use of the behavioral signals that show hidden links between items, like users who enjoy both horror films and true crime documentaries.
+
+Collaborative filtering has problems with new users and new items. With 60% of validation users missing from training data and 12% of items receiving fewer than 10 ratings, collaborative filtering cannot offer useful recommendations in these situations. The item-item approach helps somewhat with new users since they can receive suggestions after rating just a few items, but it still struggles with new items because they have no interaction history to rely on.
+
+FunkSVD suffers from overfitting. The training RMSE keeps dropping even after ranking performance reaches its peak. This shows that the model memorizes training patterns instead of learning general preferences. Early stopping is important, but even with careful tuning, FunkSVD's focus on explicit rating optimization doesn't translate effectively into ranking quality. ALS performs better by treating the problem as implicit feedback, but both matrix factorization methods do not perform as well as direct similarity computation on this dataset.
+
+## 6.3 Bias Analysis
+
+Three forms of bias affect model training and evaluation.
+
+Popularity bias comes from the power-law distribution of item ratings. The top 20 movies make up 5% of all interactions, even though they represent less than 1% of the catalog. Models trained on this data tend to favor popular items because these dominate the training signal. A model that recommends only the most popular unwatched items can achieve significant accuracy without any personalization. The evaluation framework does not explicitly penalize popularity bias, so reported metrics may exaggerate the level of true personalization.
+
+Activity bias results from the long tail of user engagement. Power users who rate hundreds of movies contribute a lot to the training data. If these users have unusual preferences, the model may pick up patterns that do not apply well to casual users with fewer ratings. The median user has rated 96 movies, while the mean is 166, influenced by highly active participants.
+
+Cold-start exposure affects evaluation directly. The temporal split creates realistic cold-start conditions: 60% of validation users and 38% of test users never showed up in training. This means that overall metrics mix warm-user and cold-user performance. Models with strong fallback strategies may seem better than those designed only for warm users. This is fine for production systems, but it can hide performance differences within the warm-user group.
+
+## 6.4 Deployment Recommendation
+
+For this dataset and use case, we suggest using item-item collaborative filtering with cosine similarity as the main recommendation engine. This recommendation is based on four factors.
+
+First, it shows the best ranking performance among all tested methods. The nDCG@10 score of 0.1488 is almost equal to that of the hybrid model while being easier to implement and maintain.
+
+Second, item-item similarity matrices are easy to understand. When a recommendation doesn’t work or seems odd, developers can check which items in the user's history influenced the suggestion. This clarity helps with debugging and builds trust with stakeholders.
+
+Third, the computational needs are reasonable. The item-item similarity matrix measures 3,706 by 3,706, which fits well in memory. By precomputing and caching this matrix, we can provide real-time recommendations with low delays.
+
+Fourth, cold-start solutions are easy to set up. For new users with no history, popularity-based recommendations are a solid default. For new items, content-based similarity using genre metadata can kickstart recommendations until there are enough interactions.
+
+When deploying in production, include genre-based content filtering for cold items, popularity-based recommendations for completely new users, and monitor recommendation diversity to catch any excessive popularity bias.
+
+## 6.5 Limitations and Next Steps
+
+This project focused on classical methods and offline evaluation, which leaves several directions unexplored.
+
+Deep learning techniques such as neural collaborative filtering, autoencoders, and sequence models have achieved strong results on similar datasets. These methods can capture non-linear interaction patterns that linear matrix factorization misses. However, they need more careful tuning and larger computing resources.
+
+Hybrid neural models that combine collaborative signals with content features in a learned way may perform better than the simple weighted hybrid tested here. Approaches like wide-and-deep networks or two-tower architectures could better use the available metadata.
+
+Online evaluation through A/B testing would show whether the offline improvements lead to increased user engagement in real situations. Offline metrics cannot capture feedback loops, novelty preferences, or long-term user satisfaction that only appear after deployment.
+
+Contextual features like time of day, device type, or session context are missing from MovieLens but exist in actual systems. Adding these signals could improve recommendation relevance for specific moments.
+
+The evaluation framework would benefit from reporting based on user activity level and item popularity tier. This would clarify whether models really personalize or just exploit popularity.
