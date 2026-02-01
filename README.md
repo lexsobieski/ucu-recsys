@@ -44,5 +44,5 @@ python scripts/download_movielens.py
 │   │   └── splitter.py
 │   └── evaluation/
 │       └── metrics.py
-├── requirements.txt
+└── requirements.txt
 ```
