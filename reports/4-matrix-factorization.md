@@ -2,6 +2,17 @@
 
 We implemented two matrix factorization approaches: ALS (Alternating Least Squares) with implicit feedback and FunkSVD with explicit ratings.
 
+## Hyperparameters
+
+Both models were tuned via grid search optimizing for validation NDCG@10.
+
+| Model | Parameters |
+|-------|------------|
+| ALS | factors=10, regularization=0.1, iterations=30 |
+| FunkSVD | n_factors=10, n_epochs=20, learning_rate=0.01, regularization=0.01 |
+
+The relatively small factor count (10) reflects the dataset's sparse nature - more factors tend to overfit without enough signal per user.
+
 ## Results
 
 | Model | NDCG@10 | Precision@10 | Recall@10 | RMSE |
@@ -18,6 +29,10 @@ ALS outperforms FunkSVD on all ranking metrics by roughly 2x.
 ALS beats FunkSVD at every k value. Precision drops as k grows (more recommendations = harder to stay precise), while recall increases (more chances to hit relevant items). This is the standard precision-recall tradeoff. NDCG accounts for ranking position, so it stays more stable across different k values.
 
 ![Metrics vs K](../artifacts/mf_metrics_vs_k.png)
+
+### NDCG at Higher K
+
+ALS NDCG dips slightly after k=10 before rebounding around k=100. This is a normalization artifact: at moderate k the denominator grows faster than cumulative gain, but at higher k recall catches up. For longer recommendation lists, ALS would likely exceed its k=10 performance.
 
 ## Convergence Analysis
 
