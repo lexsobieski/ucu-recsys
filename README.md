@@ -9,17 +9,15 @@
 
 ## Project Setup
 
-Python: **3.12.10**
+Python: **3.11.9**
 
 ```shell
+pyenv install 3.11.9
+pyenv local 3.11.9
+
 python -m venv .venv
 source .venv/bin/activate
-
-# macOS
-pip install -r requirements_mac.txt
-
-# Windows
-pip install -r requirements_win.txt
+pip install -r requirements.txt
 ```
 
 ## Dataset Download
@@ -43,6 +41,8 @@ python scripts/download_movielens.py
 │   ├── funksvd-tuning.ipynb
 │   ├── matrix-factorization.ipynb
 │   ├── metrics-example.ipynb
+│   ├── multvae-tuning.ipynb
+│   ├── ncf-tuning.ipynb
 │   └── similarity-based-recommenders.ipynb
 ├── reports/
 │   ├── 1-exploratory-data-analysis.md
@@ -63,7 +63,9 @@ python scripts/download_movielens.py
 │       ├── als.py
 │       ├── base.py
 │       ├── collaborative.py
-│       └── content_based.py
-├── requirements_mac.txt
-└── requirements_win.txt
+│       ├── content_based.py
+│       ├── funksvd.py
+│       ├── multvae.py
+│       └── ncf.py
+└── requirements.txt
 ```
