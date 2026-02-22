@@ -1,0 +1,22 @@
+{
+  "best_params": {
+    "n_factors": 64,
+    "learning_rate": 0.01,
+    "reg": 0.01,
+    "n_epochs": 50,
+    "n_neg_samples": 1,
+    "batch_size": 2048
+  },
+  "test_ranking_metrics": {
+    "ndcg": 0.07744259737759289,
+    "map": 0.03586891541207973,
+    "precision": 0.06411903956712886,
+    "recall": 0.05556812743485565
+  },
+  "popularity_test_metrics": {
+    "ndcg": 0.06393692334243181,
+    "map": 0.029496051838551276,
+    "precision": 0.054058167061210693,
+    "recall": 0.043243827835023924
+  }
+}
