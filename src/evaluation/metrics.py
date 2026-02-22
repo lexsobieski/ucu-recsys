@@ -20,7 +20,8 @@ def compute_ndcg(
         col_item=COLUMN_ITEM,
         col_rating=COLUMN_RATING,
         col_prediction=COLUMN_PREDICTION,
-        k=top_k
+        k=top_k,
+        threshold=4.0
     )
 
 
@@ -36,7 +37,8 @@ def compute_map(
         col_item=COLUMN_ITEM,
         col_rating=COLUMN_RATING,
         col_prediction=COLUMN_PREDICTION,
-        k=top_k
+        k=top_k,
+        threshold=4.0
     )
 
 
@@ -52,7 +54,8 @@ def compute_precision(
         col_item=COLUMN_ITEM,
         col_rating=COLUMN_RATING,
         col_prediction=COLUMN_PREDICTION,
-        k=top_k
+        k=top_k,
+        threshold=4.0
     )
 
 
@@ -68,7 +71,8 @@ def compute_recall(
         col_item=COLUMN_ITEM,
         col_rating=COLUMN_RATING,
         col_prediction=COLUMN_PREDICTION,
-        k=top_k
+        k=top_k,
+        threshold=4.0
     )
 
 
