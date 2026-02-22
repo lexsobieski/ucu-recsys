@@ -1,0 +1,15 @@
+{
+  "best_params": {
+    "intermediate_dim": 400,
+    "latent_dim": 50,
+    "n_epochs": 50,
+    "beta": 0.5
+  },
+  "val_ndcg": 0.09937433242196514,
+  "test_ranking_metrics": {
+    "ndcg": 0.10153678000395285,
+    "map": 0.049455371143184164,
+    "precision": 0.08048698004734528,
+    "recall": 0.08158068583696633
+  }
+}

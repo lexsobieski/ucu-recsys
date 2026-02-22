@@ -1,0 +1,19 @@
+{
+  "best_params": {
+    "n_factors": 16,
+    "layer_sizes": [
+      32,
+      16,
+      8
+    ],
+    "n_epochs": 10,
+    "learning_rate": 0.001
+  },
+  "val_ndcg": 0.1009531852661003,
+  "test_ranking_metrics": {
+    "ndcg": 0.10985825697458038,
+    "map": 0.05487452644918988,
+    "precision": 0.08545823469732838,
+    "recall": 0.08580540292700918
+  }
+}
